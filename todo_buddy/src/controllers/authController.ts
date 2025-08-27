@@ -5,8 +5,9 @@ const authService = new AuthService();
 
 export const loginController = async (req: Request, res: Response) => {
   try {
+
     const { email, password } = req.body;
-    const { accessToken, user } = await authService.login(email, password);
+    const { accessToken, user } = await authService.login( email, password );
 
     return res.status(200).json({
       message: 'Login successful',

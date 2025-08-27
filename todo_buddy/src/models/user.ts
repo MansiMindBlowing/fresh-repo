@@ -5,8 +5,10 @@ import { Todo } from "./todo";
 
 @Entity("user")
 export class User implements IUser {
+  
   @PrimaryColumn({ type: "uuid", unique: true, default: () => "gen_random_uuid()" })
   id: string;
+
   @Column({ type: "text" })
   name: string;
 
@@ -30,6 +32,9 @@ export class User implements IUser {
   
   @CreateDateColumn({ name: 'updated_at' })
   updated_at: Date;
+
+  @Column({ nullable: true })
+  fcmToken: string;
 }
 
 

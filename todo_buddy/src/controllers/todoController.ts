@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { Service, Inject } from 'typedi';
 import { TodoService } from '../services/todo.service';
+import { sendNotification } from '../services/notification.service';
+import {User} from '../models/user';
+import { title } from 'process';
+import { AppDataSource } from '../connection/database';
 // import { query } from 'typeorm/driver/Query';
 // import { Between, Repository } from 'typeorm';
 // import { Todo } from 'models/todo';
@@ -13,11 +17,18 @@ export class TodoController {
     ) { }
 
     async create(req: Request, res: Response, next: NextFunction) {
+        
         try {
+            
             console.log("in controller method");
 
             const userId = (req as any).user?.id;
+            console.log("Request Body:", req.body);
+
             const todo = await this.todoService.create(req.body, userId);
+
+            const userRepo = AppDataSource.getRepository(User);
+            const user = await userRepo.findOne({ where: { id: userId } });
             res.status(201).json(todo);
         } catch (error) {
             next(error);
@@ -61,6 +72,7 @@ export class TodoController {
     async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = (req as any).user?.id;
+
             const id = req.params.id;
             const todo = await this.todoService.getById(id, userId);
             res.status(200).json(todo);

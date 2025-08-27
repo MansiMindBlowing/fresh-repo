@@ -7,17 +7,24 @@ import nodemailer from 'nodemailer';
 
 export const invitedUser = async (req: Request, res: Response) => {
 
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: 'Request body is missing or empty' });
+    }
+    
     const { email, name, role } = req.body;
      const userId = (req as any).user?.id;
      
     try {
         const userRepo = AppDataSource.getRepository(User)
+        
         const alreadyUser = await userRepo.findOne({ where: { email } })
+
         if (alreadyUser) {
             return res.status(400).json({ message: 'user exists' })
         }
 
         const password = crypto.randomBytes(8).toString('hex');
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = userRepo.create({

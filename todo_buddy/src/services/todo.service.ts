@@ -1,12 +1,13 @@
 import { Service } from 'typedi';
-import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, LessThanOrEqual, Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { AppDataSource } from '../connection/database';
 import { Todo } from '../models/todo'
 import { start } from 'repl';
 
 @Service()
 export class TodoService {
-     private todoRepository: Repository<Todo>;
+  private todoRepository: Repository<Todo>;
+
   private todoRepo: Repository<Todo>;
 
   constructor() {
@@ -29,13 +30,14 @@ export class TodoService {
             page=1,
             limit=3,
             title,
+            // search,
             status,
             priority,
             from_date,
             to_date
         } = query
 
-        const where: any = {
+        const where: FindOptionsWhere<Todo> = {
             user_id: userId,
             is_deleted: false
         }
@@ -53,7 +55,8 @@ export class TodoService {
 
         if(status) where.status = status;
         if(priority) where.priority = priority;
-        if(title) where.title = title;
+        if(title) where.title = Like(`%${title}%`);
+        //  if(search) where.title = Like(`%${search}%`);
 
     const [todos, total] = await this.todoRepo.findAndCount({
         where,
